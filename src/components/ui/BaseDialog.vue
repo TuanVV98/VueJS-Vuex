@@ -1,0 +1,155 @@
+<template>
+  <div to="body">
+    <div v-if="show" @click="tryClose" class="backdrop"></div>
+    <transition name="dialog">
+      <dialog open v-if="show">
+        <header>
+          <slot name="header">
+            <h2>{{ title }}</h2>
+          </slot>
+        </header>
+        <section>
+          <slot></slot>
+        </section>
+        <menu v-if="!fixed">
+          <slot name="actions">
+            <button
+              v-if="title.includes('are you sure?')"
+              @click="deletedCoach"
+            >
+              Apply
+            </button>
+            <button @click="tryClose">Close</button>
+          </slot>
+        </menu>
+      </dialog>
+    </transition>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: false,
+    },
+    fixed: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
+  emits: ["close", "deleted"],
+  methods: {
+    tryClose() {
+      if (this.fixed) {
+        return;
+      }
+      // console.log("true");
+      this.$emit("close");
+    },
+    deletedCoach() {
+      this.$emit("deleted");
+    },
+  },
+};
+</script>
+
+<style scoped>
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 10;
+}
+
+dialog {
+  position: fixed;
+  top: 20vh;
+  left: 10%;
+  width: 80%;
+  z-index: 100;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background-color: white;
+}
+
+header {
+  background-color: #3a0061;
+  color: white;
+  width: 100%;
+  padding: 1rem;
+}
+
+header h2 {
+  margin: 0;
+}
+
+section {
+  padding: 1rem;
+}
+button {
+  text-decoration: none;
+  padding: 0.5rem 1.5rem;
+  font: inherit;
+  background-color: #3a0061;
+  border: 1px solid #3a0061;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-right: 0.5rem;
+  display: inline-block;
+}
+
+button:hover,
+button:active {
+  background-color: #270041;
+  border-color: #270041;
+}
+
+menu {
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.dialog-enter-from,
+.dialog-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.dialog-enter-active {
+  transition: all 0.5s ease-out;
+}
+
+.dialog-leave-active {
+  transition: all 0.5s ease-in;
+}
+
+.dialog-enter-to,
+.dialog-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (min-width: 768px) {
+  dialog {
+    left: calc(50% - 20rem);
+    width: 40rem;
+  }
+}
+</style>
